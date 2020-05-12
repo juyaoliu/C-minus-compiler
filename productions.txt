@@ -1,0 +1,52 @@
+P ::= N declare_list
+declare_list ::= declare declare_list
+declare_list ::= declare
+declare ::= int ID M A function_declare
+declare ::= int ID var_declare
+declare ::= void ID M A function_declare
+A ::= 
+var_declare ::= ;
+function_declare ::= ( parameter ) sentence_block
+parameter ::= parameter_list
+parameter ::= void
+parameter_list ::= param
+parameter_list ::= param , parameter_list
+param ::= int ID
+sentence_block ::= { inner_declare sentence_list }
+inner_declare ::= 
+inner_declare ::= inner_var_declare ; inner_declare
+inner_var_declare ::= int ID
+sentence_list ::= sentence M sentence_list
+sentence_list ::= sentence
+sentence ::= if_sentence
+sentence ::= while_sentence
+sentence ::= return_sentence
+sentence ::= assign_sentence
+assign_sentence ::= ID = expression ;
+return_sentence ::= return ;
+return_sentence ::= return expression ;
+while_sentence ::= while M ( expression ) A sentence_block
+if_sentence ::= if ( expression ) A sentence_block
+if_sentence ::= if ( expression ) A sentence_block N else M A sentence_block
+N ::=
+M ::=
+expression ::= add_expression
+expression ::= add_expression > add_expression
+expression ::= add_expression < add_expression
+expression ::= add_expression == add_expression
+expression ::= add_expression >= add_expression
+expression ::= add_expression <= add_expression
+expression ::= add_expression != add_expression
+add_expression ::= item
+add_expression ::= item + add_expression
+add_expression ::= item - add_expression
+item ::= factor
+item ::= factor * item
+item ::= factor / item
+factor ::= NUM
+factor ::= ( expression )
+factor ::= ID ( argument_list )
+factor ::= ID 
+argument_list ::= 
+argument_list ::= expression
+argument_list ::= expression , argument_list
