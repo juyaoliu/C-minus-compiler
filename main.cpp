@@ -1,6 +1,6 @@
 #include"LexicalAnalyser.h"
 #include "ParserAndSemanticAnalyser.h"
-#include "ObjectCodeGenarator.h"
+#include "ObjectCodeGenerator.h"
 int main() {
 	LexicalAnalyser lexicalAnalyser("test.txt");
 	lexicalAnalyser.analyse();
