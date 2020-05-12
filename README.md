@@ -98,5 +98,33 @@ code.outputBlocks();
 code.outputBlocks(output_file_name);
 ```
 
+返回基本块划分结果
+```C++
+code.getFuncBlock();
+```
 
 ## 目标代码生成器接口说明
+分析基本块的待用/活跃信息，确定出口活跃变量和入口活跃变量
+```C++
+objectCodeGenerator.analyseBlock(code->getFuncBlock())；
+```
+
+输出基本块及待用/活跃信息到标准输出
+```C++
+objectCodeGenerator.outputIBlocks();
+```
+
+生成目标代码
+```C++
+objectCodeGenerator.generateCode();
+```
+
+输出目标代码到标准输出
+```C++
+objectCodeGenerator.outputObjectCode();
+```
+
+输出目标代码到文件
+```C++
+objectCodeGenerator.outputObjectCode(asm_name);
+```
