@@ -1,0 +1,185 @@
+0:P ::= N declare_list
+	back_patch(N.nextList,find(main).enter)
+
+1:declare_list ::= declare declare_list
+2:declare_list ::= declare
+
+3:declare ::= int ID M A function_declare
+	func_table.insert(ID.name,int,function_declare.plist,M.quad)
+	
+4:declare ::= int ID var_declare
+	var_table.insert(ID.name,int,nowLevel)
+
+5:declare ::= void ID M A function_declare
+	func_table.insert(ID.name,void,function_declare.plist,M.quad)
+
+6:A ::= 
+	nowLevel++
+
+7:var_declare ::= ;
+
+8:function_declare ::= ( parameter ) sentence_block
+	function_declare.plist = parameter.plist
+
+9:parameter ::= parameter_list
+	parameter.plist = parameter_list.plist
+
+10:parameter ::= void
+	parameter.plist = list()
+
+11:parameter_list ::= param
+	parameter_list.plist = list().push_back(int)
+
+12:parameter_list1 ::= param , parameter_list2
+	parameter_list.plist = parameter_list2.plist.push_front(int)
+
+13:param ::= int ID
+	var_table.insert(ID.name,int,now_level)
+
+14:sentence_block ::= { inner_declare sentence_list }
+	sentence_block.nextList = sentence_list.nextList
+	nowLevel--
+	
+15:inner_declare ::= 
+
+16:inner_declare ::= inner_var_declare ; inner_declare
+
+17:inner_var_declare ::= int ID
+	var_table.insert(ID.name,int,nowLevel)
+
+18:sentence_list ::= sentence M sentence_list
+	sentence_list.nextList = sentence_list.nextList
+	backpatch(sentence.nextList,M.quad)
+
+19:sentence_list ::= sentence
+	sentence_list.nextList = sentence.nextList
+
+20:sentence ::= if_sentence
+	sentence.nextList = if_sentence.nextList
+	
+21:sentence ::= while_sentence
+	sentence.nextList = while_sentence.nextList
+	
+22:sentence ::= return_sentence
+	sentence.nextList = list()
+	
+23:sentence ::= assign_sentence
+	sentence.nextList = list()
+	
+24:assign_sentence ::= ID = expression ;
+	emit (=,expression.name,,ID)
+
+25:return_sentence ::= return ;
+	emit (return,_,_,_)
+
+26:return_sentence ::= return expression ;
+	emit (return,expression.name,_,_)
+
+27:while_sentence ::= while M ( expression ) A sentence_block
+	backpatch(sentence_block.next,M.quad)
+	while_sentence.nextList = expression.falseList
+	emit(j,_,_,M.quad)
+	
+28:if_sentence ::= if ( expression ) A sentence_block
+	if_sentence.nextList = merge(expression.falseList,sentence_block.nextList)
+	
+29:if_sentence ::= if ( expression ) A sentence_block1 N else M A sentence_block2
+	backpatch(expression.falseList,M.quad)
+	if_sentence.nextList = merge(sentence_block1.nextList,sentence_block2.nextList,N.nextList)
+	
+30:N ::= 
+	N.nextList = code.size()
+	emit(j,_,_,-1)
+	
+31:M ::=
+	M.quad = code.size()
+	
+32:expression ::= add_expression
+	expression.name = add_expression.name
+	expression.falseList = -1
+	
+33:expression ::= add_expression > add_expression
+	expression.name = NULL
+	expression.falseList = code.size()
+	emit (j<=,add_expression1.name,add_expression2.name,-1)
+	
+34:expression ::= add_expression < add_expression
+	expression.name = NULL
+	expression.falseList = code.size()
+	emit (j>=,add_expression1.name,add_expression2.name,-1)
+	
+35:expression ::= add_expression == add_expression
+	expression.name = NULL
+	expression.falseList = code.size()
+	emit (j!=,add_expression1.name,add_expression2.name,-1)
+
+36:expression ::= add_expression >= add_expression
+	expression.name = NULL
+	expression.falseList = code.size()
+	emit (j<,add_expression1.name,add_expression2.name,-1)
+	
+37:expression ::= add_expression <= add_expression
+	expression.name = NULL
+	expression.falseList = code.size()
+	emit (j>,add_expression1.name,add_expression2.name,-1)
+	
+38:expression ::= add_expression != add_expression
+	expression.name = NULL
+	expression.falseList = code.size()
+	emit (j==,add_expression1.name,add_expression2.name,add_expression.name,-1)
+
+39:add_expression ::= item
+	add_expression.name = item.name
+
+40:add_expression ::= item + add_expression
+	add_expression.name = newTemp()
+	emit(+,item.name,add_expression.name,add_expression.name)
+
+41:add_expression ::= item - add_expression
+	add_expression.name = newTemp()
+	emit(-,item.name,add_expression.name,add_expression.name)
+
+42:item ::= factor
+	item.name = factor.name
+
+43:item1 ::= factor * item2
+	item.name = newTemp()
+	emit (*,factor.name,item2.name,item1.name)
+	
+44:item1 ::= factor / item2
+	item.name = newTemp()
+	emit (/,factor.name,item2.name,item1.name)
+
+45:factor ::= NUM
+	factor.name = NUM
+
+46:factor ::= ( expression )
+	factor.name = expression.name
+
+47:factor ::= ID ( argument_list )
+	f = func_find(ID.name)
+	if f == NULL
+		error
+	else if !march(argument_list,f.parameter_list)
+		error
+    else
+    	push argument_list
+		emit jal find(ID.name).enterPoint
+	if(f.returnType ==int)
+		factor.name = newTemp()
+	    emit (=,factor.name,_,RETURN_PLACE)
+
+48:factor ::= ID
+    if func_find(ID.name) == NULL
+		error
+    else
+		factor.name = ID.name
+						
+50:argument_list ::= 
+	argument_list.plist = list()
+
+51:argument_list ::= expression
+	argument_list.plist = expression.name
+
+52:argument_list ::= expression , argument_list
+	argument_list.plist = argument_list.plist + expression.name
