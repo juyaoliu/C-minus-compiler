@@ -34,12 +34,12 @@ ParserAndSemanticAnalyser parserAndSemanticAnalyser("productions.txt");
 
 将构造的DFA输出到标准输出
 ```C++
-ParserAndSemanticAnalyser parserAndSemanticAnalyser("productions.txt");
+parserAndSemanticAnalyser.outputDFA();
 ```
 
 将构造的DFA输出到文件
 ```C++
-ParserAndSemanticAnalyser parserAndSemanticAnalyser("productions.txt",output_file_name);
+parserAndSemanticAnalyser.outputDFA(output_file_name);
 ```
 
 将中间代码输出到标准输出
